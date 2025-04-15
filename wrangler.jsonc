@@ -1,0 +1,22 @@
+{
+	"$schema": "node_modules/wrangler/config-schema.json",
+	"name": "waifu-war",
+	"main": "src/index.ts",
+	"compatibility_date": "2025-04-15",
+	"observability": {
+		"enabled": true
+	},
+	"d1_databases": [
+		{
+			"binding": "FUN_DB",
+			"database_name": "fun",
+			"database_id": "5deb478e-0783-4d93-9a48-f4a531fa374d"
+		}
+	],
+	"r2_buckets": [
+		{
+			"binding": "FUN_IMG",
+			"bucket_name": "waifu-war-fun-images"
+		}
+	]
+}
