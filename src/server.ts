@@ -1,13 +1,10 @@
 import { RequestLike, AutoRouter } from 'itty-router';
-import {
-	verifyKey,
-} from 'discord-interactions';
+import { verifyKey } from 'discord-interactions';
 import * as commands from './commands';
 import {
 	APIChatInputApplicationCommandInteraction,
 	APIInteraction,
 	APIInteractionResponse,
-	APIInteractionResponsePong,
 	APIMessageApplicationCommandInteraction,
 	APIUserApplicationCommandInteraction,
 	ApplicationCommandType,
@@ -39,16 +36,16 @@ router.get('/', (_, env: Env) => {
 	return new Response(`👋 ${env.DISCORD_APPLICATION_ID}`);
 });
 
-router.post('/', async (request, env: Env) => {
+router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 	const { isValid, interaction } = await server.verifyDiscordRequest(request, env);
 	if (!isValid || !interaction) {
 		return new Response('Bad request signature.', { status: 401 });
 	}
 
 	if (interaction.type === InteractionType.Ping) {
-		return {
+		return new JsonResponse({
 			type: InteractionResponseType.Pong,
-		} satisfies APIInteractionResponsePong
+		})
 	}
 
 	if (interaction.type === InteractionType.ApplicationCommand) {
@@ -58,19 +55,24 @@ router.post('/', async (request, env: Env) => {
 			return new JsonResponse({ error: 'Unknown Command' }, { status: 400 });
 		}
 
+		let response: APIInteractionResponse;
 		switch (interaction.data.type) {
 			case ApplicationCommandType.ChatInput:
-				return (command as ChatCommand).handle(interaction as APIChatInputApplicationCommandInteraction, env);
+				response = await (command as ChatCommand).handle(interaction as APIChatInputApplicationCommandInteraction, env, ctx);
+				break
 			case ApplicationCommandType.User:
-				return (command as UserCommand).handle(interaction as APIUserApplicationCommandInteraction, env);
+				response = await (command as UserCommand).handle(interaction as APIUserApplicationCommandInteraction, env, ctx);
+				break
 			case ApplicationCommandType.Message:
-				return (command as MessageCommand).handle(interaction as APIMessageApplicationCommandInteraction, env);
+				response = await (command as MessageCommand).handle(interaction as APIMessageApplicationCommandInteraction, env, ctx);
+				break
 			default:
 				return new JsonResponse(
 					{ error: 'Unsupported Command Type' }, 
 					{ status: 400 }
 				);
 		}
+		return new JsonResponse(response);
 	}
 
 	console.error('Unknown Type');

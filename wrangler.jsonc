@@ -8,22 +8,20 @@
 	},
 	"d1_databases": [
 		{
-			"binding": "FUN_DB",
-			"database_name": "fun",
-			"database_id": "5deb478e-0783-4d93-9a48-f4a531fa374d",
-			"preview_database_id": "5209ad5d-5a60-4c5f-b55b-d80c48f373af"
+			"binding": "CONTENT",
+			"database_name": "waifu-war-content",
+			"database_id": "3bba24ff-1022-4c6b-9291-34e13751de79"
 		},
 		{
-			"binding": "CONFIG_DB",
-			"database_name": "config",
-			"database_id": "2dbbb32d-7e6c-41eb-81e5-39e9b91d8aea"
+			"binding": "CONFIG",
+			"database_name": "waifu-war-config",
+			"database_id": "fd4b31e0-b70b-4731-bb14-0d6fc098ec83"
 		}
 	],
 	"r2_buckets": [
 		{
-			"binding": "FUN_IMG",
-			"bucket_name": "waifu-war-fun-images",
-			"preview_bucket_name": "waifu-war-fun-images-dev"
+			"binding": "MEDIA_BUCKET",
+			"bucket_name": "waifu-war-media"
 		}
 	]
 }

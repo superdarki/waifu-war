@@ -45,7 +45,7 @@ const USER_CONFIG_COMMAND = createChatCommand({
                         }
                     }
                 } else {
-                    await env.CONFIG_DB.prepare(
+                    await env.CONFIG.prepare(
                         `INSERT INTO user (id, color) 
                         VALUES (?1, ?2)
                         ON CONFLICT(id) DO UPDATE SET color = excluded.color`

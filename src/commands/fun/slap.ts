@@ -1,4 +1,9 @@
-import { AllowedMentionsTypes, APIApplicationCommandInteractionDataUserOption, APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
+import {
+    APIApplicationCommandInteractionDataUserOption,
+    APIApplicationCommandOption,
+    ApplicationCommandOptionType,
+    InteractionResponseType
+} from "discord-api-types/v10";
 import { createChatCommand } from "../../utils/command";
 
 const SLAP_COMMAND = createChatCommand({
@@ -26,8 +31,7 @@ const SLAP_COMMAND = createChatCommand({
                         title: 'Slap!',
                         description: `${target} just got slapped! 💥`
                     }
-                ],
-                allowed_mentions: {parse: [AllowedMentionsTypes.User]}
+                ]
             }
         }
     }
