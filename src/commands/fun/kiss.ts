@@ -1,10 +1,11 @@
 import { AllowedMentionsTypes, APIApplicationCommandInteractionDataUserOption, APIApplicationCommandOption, ApplicationCommandOptionType, InteractionResponseType } from "discord-api-types/v10";
 import { createChatCommand } from "../../utils/command";
+import { compile } from "../../utils/replace";
 
 const KISS_COMMAND = createChatCommand({
     data: {
         name: 'kiss',
-        description: 'Kiss someone! (I smell love in the air :heart:)',
+        description: 'Kiss someone! (I smell love in the air ❤️)',
         options: [
             {
                 name: 'target',
@@ -14,19 +15,22 @@ const KISS_COMMAND = createChatCommand({
             }
         ] satisfies APIApplicationCommandOption[]
     },
-    async handle(interaction) {
-        const targetUserId = (interaction.data.options?.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption | undefined)?.value as string | undefined
+    async handle(interaction, env) {
+        const targetUserId = (interaction.data.options!.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption)!.value as string
+        const q = await env.FUN_DB.prepare("SELECT value FROM kiss ORDER BY RANDOM() LIMIT 1").first()
+        const template = (q?.value as string) ?? "An error occured, no template phrase available"
 
         return {
             type: InteractionResponseType.ChannelMessageWithSource,
             data: {
                 embeds: [
                     {
-                        title: 'Kiss!',
-                        description: `<@${interaction.member?.user.id}> kissed <@${targetUserId}>! :heart:`
+                        description: compile(template, {1:`<@${interaction.member?.user.id}>`,2:`<@${targetUserId}>`})
                     }
                 ],
-                allowed_mentions: {parse: [AllowedMentionsTypes.User]}
+                allowed_mentions: {
+                    parse: [AllowedMentionsTypes.User]
+                }
             }
         }
     }

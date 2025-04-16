@@ -13,7 +13,7 @@ export interface ChatCommand {
         description: string
         options?: APIApplicationCommandOption[]
     }
-    handle?: (interaction: APIChatInputApplicationCommandInteraction) => Promise<APIInteractionResponse>
+    handle: (interaction: APIChatInputApplicationCommandInteraction, env: Env) => Promise<APIInteractionResponse>
 }
 
 export interface UserCommand {
@@ -21,7 +21,7 @@ export interface UserCommand {
         name: string
         description: string
     }
-    handle?: (interaction: APIUserApplicationCommandInteraction) => Promise<APIInteractionResponse>
+    handle: (interaction: APIUserApplicationCommandInteraction, env: Env) => Promise<APIInteractionResponse>
 }
 
 export interface MessageCommand {
@@ -29,7 +29,7 @@ export interface MessageCommand {
         name: string
         description: string
     }
-    handle?: (interaction: APIMessageApplicationCommandInteraction) => Promise<APIInteractionResponse>
+    handle: (interaction: APIMessageApplicationCommandInteraction, env: Env) => Promise<APIInteractionResponse>
 }
 
 export type Command = ChatCommand | UserCommand | MessageCommand

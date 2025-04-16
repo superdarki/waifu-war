@@ -3,16 +3,16 @@
 	"version": "0.0.0",
 	"type": "module",
 	"private": true,
+	"main": "src/server.js",
 	"scripts": {
 		"deploy": "wrangler deploy",
 		"dev": "wrangler dev",
 		"start": "wrangler dev",
-		"ngrok": "ngrok http 8787",
+		"ngrok": "ngrok http --url amusing-precious-gator.ngrok-free.app 8787",
 		"register": "tsx src/register.ts",
 		"cf-typegen": "wrangler types"
 	},
 	"devDependencies": {
-		"@cloudflare/workers-types": "^4.20250415.0",
 		"discord-api-types": "^0.37.120",
 		"dotenv": "^16.5.0",
 		"ngrok": "^5.0.0-beta.2",
