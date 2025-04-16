@@ -1,9 +1,15 @@
-import KISS_COMMAND from "./fun/kiss";
-import SLAP_COMMAND from "./fun/slap";
-import USER_CONFIG_COMMAND from "./config/user";
+import {
+    KISS_COMMAND,
+    SLAP_COMMAND
+} from "./extra";
+import {
+    USER_CONFIG_COMMAND
+} from "./config";
+import SUBMIT_COMMAND from "./submit";
 
 export {
     KISS_COMMAND,
     SLAP_COMMAND,
-    USER_CONFIG_COMMAND
+    USER_CONFIG_COMMAND,
+    SUBMIT_COMMAND
 }

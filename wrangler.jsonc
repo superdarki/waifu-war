@@ -6,6 +6,9 @@
 	"observability": {
 		"enabled": true
 	},
+	"vars": {
+		"ADMIN_GUILD": "1116546915589431327"
+	},
 	"d1_databases": [
 		{
 			"binding": "CONTENT",

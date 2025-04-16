@@ -8,6 +8,7 @@ import {
 } from 'discord-api-types/v10'
 
 export interface ChatCommand {
+    admin?: boolean
     data: {
         name: string
         description: string
@@ -17,6 +18,7 @@ export interface ChatCommand {
 }
 
 export interface UserCommand {
+    admin?: boolean
     data: {
         name: string
         description: string
@@ -25,6 +27,7 @@ export interface UserCommand {
 }
 
 export interface MessageCommand {
+    admin?: boolean
     data: {
         name: string
         description: string
@@ -36,6 +39,7 @@ export type Command = ChatCommand | UserCommand | MessageCommand
 
 export const createChatCommand = (cmd: ChatCommand) => ({
     ...cmd,
+    admin: cmd.admin ?? false,
     data: {
         ...cmd.data,
         type: ApplicationCommandType.ChatInput
@@ -44,6 +48,7 @@ export const createChatCommand = (cmd: ChatCommand) => ({
 
 export const createUserCommand = (cmd: UserCommand) => ({
     ...cmd,
+    admin: cmd.admin ?? false,
     data: {
         ...cmd.data,
         type: ApplicationCommandType.User
@@ -52,6 +57,7 @@ export const createUserCommand = (cmd: UserCommand) => ({
 
 export const createMessageCommand = (cmd: MessageCommand) => ({
     ...cmd,
+    admin: cmd.admin ?? false,
     data: {
         ...cmd.data,
         type: ApplicationCommandType.Message
