@@ -3,12 +3,11 @@ import {
     APIApplicationCommandInteractionDataSubcommandGroupOption,
     APIApplicationCommandInteractionDataSubcommandOption,
     APIApplicationCommandOptionChoice,
+    APIInteractionResponse,
     ApplicationCommandOptionType,
     InteractionResponseType
 } from "discord-api-types/v10";
 import { createChatCommand } from "../utils/command";
-import { compile } from "../utils/replace";
-import { getRandomImageFromFolder, sendFollowup } from "../utils/image";
 import * as extraCommands from "./extra";
 
 const SUBMIT_COMMAND = createChatCommand({
@@ -23,7 +22,7 @@ const SUBMIT_COMMAND = createChatCommand({
                 type: ApplicationCommandOptionType.SubcommandGroup,
                 options: [
                     {
-                        name: 'command',
+                        name: 'extra',
                         description: 'Submit a new text phrase for an extra command',
                         type: ApplicationCommandOptionType.Subcommand,
                         options: [
@@ -42,7 +41,7 @@ const SUBMIT_COMMAND = createChatCommand({
                                 description: 'The phrase you want to submit',
                                 type: ApplicationCommandOptionType.String,
                                 required: true,
-                                min_length: 15,
+                                min_length: 10, // TODO: change when needed
                                 max_length: 100
                             }
                         ]
@@ -54,10 +53,42 @@ const SUBMIT_COMMAND = createChatCommand({
     async handle(interaction, env, ctx) {
         const userId = interaction.member!.user.id
         const subcommand = interaction.data.options![0] as APIApplicationCommandInteractionDataOption
+        const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
+        switch (subcommand.name) {
+            case 'text':
+                const sub = (subcommand as APIApplicationCommandInteractionDataSubcommandGroupOption).options![0] as APIApplicationCommandInteractionDataSubcommandOption
+                switch (sub.name) {
+                    case 'extra':
+                        const id = crypto.randomUUID()
+                        const cmd = sub.options?.find(opt => opt.name === 'command')!.value as string
+                        const val = sub.options?.find(opt => opt.name === 'text')!.value as string
+
+                        await env.SUBMISSIONS.prepare(`INSERT INTO ${cmd} (id, value) VALUES (?1, ?2)`).bind(id, val).run()
+
+                        return {
+                            type: InteractionResponseType.ChannelMessageWithSource,
+                            data: {
+                                embeds: [
+                                    {
+                                        title: 'Submission Recap',
+                                        description: `Command: /${cmd}\nSubmited phrase: \`${val}\``,
+                                        footer: {
+                                            text: `${id}`
+                                        },
+                                        color: color
+                                    }
+                                ]
+                            }
+                        } satisfies APIInteractionResponse
+                }
+        }
 
         return {
-            type: InteractionResponseType.DeferredChannelMessageWithSource
-        };
+            type: InteractionResponseType.ChannelMessageWithSource,
+            data: {
+                content: `${subcommand.name}`
+            }
+        } satisfies APIInteractionResponse;
     }
 })
 export default SUBMIT_COMMAND

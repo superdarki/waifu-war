@@ -38,7 +38,7 @@ const KISS_COMMAND = createChatCommand({
                 const payload = {
                     embeds: [
                         {
-                            title: '**Kiss**',
+                            title: 'Kiss',
                             description: compile(template, {
                                 1: `<@${userId}>`,
                                 2: `<@${targetUserId}>`

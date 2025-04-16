@@ -19,6 +19,11 @@
 			"binding": "CONFIG",
 			"database_name": "waifu-war-config",
 			"database_id": "fd4b31e0-b70b-4731-bb14-0d6fc098ec83"
+		},
+		{
+			"binding": "SUBMISSIONS",
+			"database_name": "waifu-war-submissions",
+			"database_id": "dd11aea7-f08d-4935-bd67-6cb7adff70ef"
 		}
 	],
 	"r2_buckets": [
