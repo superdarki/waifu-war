@@ -75,6 +75,10 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 		return new JsonResponse(response);
 	}
 
+	if (interaction.type === InteractionType.MessageComponent) {
+		return new JsonResponse({ error: 'Components are not yet implemented' }, { status: 400 });
+	}
+
 	console.error('Unknown Type');
 	return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
 });
