@@ -3,11 +3,11 @@ import {
     ApplicationCommandOptionType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../utils/command";
+import { createChatCommand } from "../../interfaces/command";
 import { compile } from "../../utils/replace";
 import { getRandomImageFromFolder, sendFollowup } from "../../utils/image";
 
-const KISS_COMMAND = createChatCommand({
+export const KISS_COMMAND = createChatCommand({
     data: {
         name: 'kiss',
         description: 'Kiss someone! (I smell love in the air ❤️)',
@@ -74,4 +74,3 @@ const KISS_COMMAND = createChatCommand({
         };
     }
 })
-export default KISS_COMMAND

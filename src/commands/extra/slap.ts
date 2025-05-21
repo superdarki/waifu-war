@@ -2,13 +2,15 @@ import {
     APIApplicationCommandInteractionDataUserOption,
     APIApplicationCommandOption,
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../utils/command";
 import { compile } from "../../utils/replace";
-import { getRandomImageFromFolder, sendFollowup } from "../../utils/image";
+import { ChatCommand } from "../../interfaces/command";
+import { getRandomFromFolder } from "../../utils/r2";
+import { sendFollowup } from "../../utils/discord";
 
-const SLAP_COMMAND = createChatCommand({
+export const SLAP_COMMAND: ChatCommand = {
     data: {
         name: 'slap',
         description: 'Slap someone! (that\'s mean but you do what you want)',
@@ -19,7 +21,8 @@ const SLAP_COMMAND = createChatCommand({
                 type: ApplicationCommandOptionType.User,
                 required: false
             }
-        ] satisfies APIApplicationCommandOption[]
+        ] satisfies APIApplicationCommandOption[],
+        type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env, ctx) {
         const userId = interaction.member!.user.id;
@@ -39,7 +42,7 @@ const SLAP_COMMAND = createChatCommand({
                     .bind(userId)
                     .first())?.color as number | undefined;
 
-                const image = await getRandomImageFromFolder(env.MEDIA_BUCKET, 'slap');
+                const image = await getRandomFromFolder(env.MEDIA_BUCKET, 'slap');
 
                 const payload = {
                     embeds: [
@@ -62,15 +65,11 @@ const SLAP_COMMAND = createChatCommand({
                     ]
                 };
 
-                await sendFollowup(env, interaction, payload, image);
+                await sendFollowup(interaction, env, payload, [image]);
             } catch (err) {
-                await fetch(`https://discord.com/api/webhooks/${env.DISCORD_APPLICATION_ID}/${interaction.token}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: '💔 Something went wrong while sending your slap.'
-                    })
-                });
+                await sendFollowup(interaction, env, {
+                    content: '💔 Something went wrong while sending your slap.'
+                })
             }
         })());
 
@@ -78,5 +77,4 @@ const SLAP_COMMAND = createChatCommand({
             type: InteractionResponseType.DeferredChannelMessageWithSource
         };
     }
-});
-export default SLAP_COMMAND;
+};

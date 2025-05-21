@@ -7,10 +7,10 @@ import {
     ApplicationCommandOptionType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../utils/command";
+import { createChatCommand } from "../../interfaces/command";
 import * as extraCommands from "../extra";
 
-const SUBMIT_COMMAND = createChatCommand({
+export const SUBMIT_COMMAND = createChatCommand({
     admin: true,
     data: {
         name: 'submit',
@@ -132,4 +132,3 @@ const SUBMIT_COMMAND = createChatCommand({
         } satisfies APIInteractionResponse;
     }
 })
-export default SUBMIT_COMMAND

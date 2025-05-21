@@ -1,8 +1,8 @@
 import { APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandSubcommandOption, ApplicationCommandOptionType, ApplicationCommandType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
-import { ChatCommand } from "../utils/command";
+import { ChatCommand } from "../interfaces/command";
 import { isValidHexColor } from "../utils/validators";
 
-const USER_CONFIG_COMMAND: ChatCommand = {
+export const USER_CONFIG_COMMAND: ChatCommand = {
     data: {
         name: 'config',
         description: 'Configure your settings',
@@ -71,4 +71,3 @@ const USER_CONFIG_COMMAND: ChatCommand = {
         }
     }
 }
-export default USER_CONFIG_COMMAND

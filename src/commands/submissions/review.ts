@@ -7,9 +7,9 @@ import {
     ApplicationCommandOptionType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../utils/command";
+import { createChatCommand } from "../../interfaces/command";
 
-const REVIEW_COMMAND = createChatCommand({
+export const REVIEW_COMMAND = createChatCommand({
     admin: true,
     data: {
         name: 'review',
@@ -33,4 +33,3 @@ const REVIEW_COMMAND = createChatCommand({
         } satisfies APIInteractionResponse;
     }
 })
-export default REVIEW_COMMAND

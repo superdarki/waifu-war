@@ -2,6 +2,7 @@ import { RESTPutAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
 import * as commands from './commands';
 import dotenv from 'dotenv';
 import process from 'node:process';
+import { Command } from './interfaces/command';
 
 dotenv.config({ path: '.dev.vars' });
 
@@ -13,12 +14,17 @@ if (!token) throw new Error('The DISCORD_TOKEN environment variable is required.
 if (!applicationId) throw new Error('The DISCORD_APPLICATION_ID environment variable is required.');
 if (!adminGuildId) throw new Error('The ADMIN_GUILD environment variable is required.');
 
+const allCommands = Object.values(commands).map(cmd => {
+		const command = cmd as Command;
+		return command;
+	})
+
 // Separate commands
-const globalCommands = Object.values(commands)
+const globalCommands = allCommands
 	.filter(cmd => !cmd.admin)
 	.map(cmd => cmd.data);
 
-const adminCommands = Object.values(commands)
+const adminCommands = allCommands
 	.filter(cmd => cmd.admin)
 	.map(cmd => cmd.data);
 

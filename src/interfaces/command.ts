@@ -38,30 +38,3 @@ export interface MessageCommand extends BaseCommand<APIMessageApplicationCommand
 }
 
 export type Command = ChatCommand | UserCommand | MessageCommand
-
-// export const createChatCommand = (cmd: ChatCommand) => ({
-//     ...cmd,
-//     admin: cmd.admin ?? false,
-//     data: {
-//         ...cmd.data,
-//         type: ApplicationCommandType.ChatInput
-//     }
-// })
-
-// export const createUserCommand = (cmd: UserCommand) => ({
-//     ...cmd,
-//     admin: cmd.admin ?? false,
-//     data: {
-//         ...cmd.data,
-//         type: ApplicationCommandType.User
-//     }
-// })
-
-// export const createMessageCommand = (cmd: MessageCommand) => ({
-//     ...cmd,
-//     admin: cmd.admin ?? false,
-//     data: {
-//         ...cmd.data,
-//         type: ApplicationCommandType.Message
-//     }
-// })

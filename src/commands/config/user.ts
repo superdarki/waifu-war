@@ -1,11 +1,11 @@
 import { APIApplicationCommandInteractionDataSubcommandOption, APIApplicationCommandSubcommandOption, ApplicationCommandOptionType, InteractionResponseType, MessageFlags } from "discord-api-types/v10";
-import { createChatCommand } from "../../utils/command";
+import { createChatCommand } from "../../interfaces/command";
 
 function isValidHexColor(str: string): boolean {
     return /^#(?:[0-9a-fA-F]{3}){1,2}$/.test(str);
 }
 
-const USER_CONFIG_COMMAND = createChatCommand({
+export const USER_CONFIG_COMMAND = createChatCommand({
     data: {
         name: 'config',
         description: 'Configure your settings',
@@ -73,4 +73,3 @@ const USER_CONFIG_COMMAND = createChatCommand({
         }
     }
 })
-export default USER_CONFIG_COMMAND

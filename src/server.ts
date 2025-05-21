@@ -11,7 +11,7 @@ import {
 	InteractionResponseType,
 	InteractionType
 } from 'discord-api-types/v10';
-import { ChatCommand, Command, MessageCommand, UserCommand } from './utils/command';
+import { ChatCommand, Command, MessageCommand, UserCommand } from './interfaces/command';
 
 class JsonResponse extends Response {
 	constructor(
@@ -30,7 +30,10 @@ class JsonResponse extends Response {
 
 const router = AutoRouter();
 
-const COMMANDS: Map<string, Command> = new Map(Object.values(commands).map(cmd => [cmd.data.name.toLowerCase(), cmd]))
+const COMMANDS: Map<string, Command> = new Map(Object.values(commands).map(cmd => {
+	const command = cmd as Command;
+	return [command.data.name.toLowerCase(), command];
+}))
 
 router.get('/', (_, env: Env) => {
 	return new Response(`👋 ${env.DISCORD_APPLICATION_ID}`);
