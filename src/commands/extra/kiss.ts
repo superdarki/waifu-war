@@ -21,7 +21,7 @@ export const KISS_COMMAND: ChatCommand = {
                 type: ApplicationCommandOptionType.User,
                 required: true
             }
-        ] satisfies APIApplicationCommandOption[],
+        ],
         type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env, ctx) {

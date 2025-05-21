@@ -1,8 +1,12 @@
-import { RESTPutAPIApplicationCommandsJSONBody } from 'discord-api-types/v10';
+import { 
+	RESTPutAPIApplicationCommandsJSONBody,
+	Routes
+} from 'discord-api-types/v10';
 import * as commands from './commands';
 import dotenv from 'dotenv';
-import process from 'node:process';
+import process, { env } from 'node:process';
 import { Command } from './interfaces/command';
+import { REST } from '@discordjs/rest';
 
 dotenv.config({ path: '.dev.vars' });
 
@@ -14,62 +18,55 @@ if (!token) throw new Error('The DISCORD_TOKEN environment variable is required.
 if (!applicationId) throw new Error('The DISCORD_APPLICATION_ID environment variable is required.');
 if (!adminGuildId) throw new Error('The ADMIN_GUILD environment variable is required.');
 
-const allCommands = Object.values(commands).map(cmd => {
-		const command = cmd as Command;
-		return command;
-	})
+const rest = new REST({ version: '10' }).setToken(token);
+
+const allCommands = Object.values(commands)
+.map(cmd => {
+	const command = cmd as Command;
+	return command;
+})
 
 // Separate commands
 const globalCommands = allCommands
-	.filter(cmd => !cmd.admin)
-	.map(cmd => cmd.data);
+.filter(cmd => !cmd.admin)
+.map(cmd => cmd.data);
 
 const adminCommands = allCommands
-	.filter(cmd => cmd.admin)
-	.map(cmd => cmd.data);
+.filter(cmd => cmd.admin)
+.map(cmd => cmd.data);
 
-// Register global commands
-const registerCommands = async (
-	url: string,
+// Define a function to register commands
+async function registerCommands(
 	commands: RESTPutAPIApplicationCommandsJSONBody,
-	label: string
-) => {
-	const response = await fetch(url, {
-		headers: {
-			'Content-Type': 'application/json',
-			Authorization: `Bot ${token}`,
-		},
-		method: 'PUT',
-		body: JSON.stringify(commands),
-	});
-
-	if (response.ok) {
-		console.log(`✅ Registered ${label} commands`);
-		const data = await response.json();
-		console.log(JSON.stringify(data, null, 2));
-	} else {
-		console.error(`❌ Error registering ${label} commands`);
-		let errorText = `${response.url}: ${response.status} ${response.statusText}`;
-		try {
-			const error = await response.text();
-			if (error) {
-				errorText += `\n\n${error}`;
-			}
-		} catch (err) {
-			console.error('Error reading response body:', err);
-		}
-		console.error(errorText);
+	label: string,
+	app_id: string,
+	guild_id?: string
+): Promise<void> {
+	const url = guild_id
+		? Routes.applicationGuildCommands(app_id, guild_id)
+		: Routes.applicationCommands(app_id);
+	try {
+		const data = await rest.put(url, {
+			body: commands,
+		});
+		console.info(`✅ Registered ${label} commands`);
+		console.debug(JSON.stringify(data, null, 2));
+	} catch (err) {
+		console.error(`❌ Error registering ${label} commands:`, err);
 	}
 };
 
+// Register global commands
 await registerCommands(
-	`https://discord.com/api/v10/applications/${applicationId}/commands`,
 	globalCommands,
-	'global'
+	'global',
+	applicationId
 );
 
+// Register admin commands
 await registerCommands(
-	`https://discord.com/api/v10/applications/${applicationId}/guilds/${adminGuildId}/commands`,
 	adminCommands,
-	'admin (guild-specific)'
+	'admin (guild-specific)',
+	applicationId,
+	adminGuildId
 );

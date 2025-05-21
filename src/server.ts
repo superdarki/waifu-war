@@ -1,9 +1,7 @@
-import { RequestLike, AutoRouter } from 'itty-router';
-import { verifyKey } from 'discord-interactions';
+import { AutoRouter } from 'itty-router';
 import * as commands from './commands';
 import {
 	APIChatInputApplicationCommandInteraction,
-	APIInteraction,
 	APIInteractionResponse,
 	APIMessageApplicationCommandInteraction,
 	APIUserApplicationCommandInteraction,
@@ -12,6 +10,7 @@ import {
 	InteractionType
 } from 'discord-api-types/v10';
 import { ChatCommand, Command, MessageCommand, UserCommand } from './interfaces/command';
+import { verifyDiscordRequest } from './utils/discord';
 
 class JsonResponse extends Response {
 	constructor(
@@ -40,7 +39,7 @@ router.get('/', (_, env: Env) => {
 });
 
 router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
-	const { isValid, interaction } = await server.verifyDiscordRequest(request, env);
+	const { isValid, interaction } = await verifyDiscordRequest(request, env);
 	if (!isValid || !interaction) {
 		return new Response('Bad request signature.', { status: 401 });
 	}
@@ -87,35 +86,7 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 });
 router.all('*', () => new Response('Not Found.', { status: 404 }));
 
-async function verifyDiscordRequest<T extends InteractionType, U>(
-	request: RequestLike,
-	env: Env,
-): Promise<
-	| {
-			isValid: true;
-			interaction: APIInteraction | null;
-		}
-	| {
-			isValid: false;
-			interaction: null;
-		}
-> {
-	const signature = request.headers.get('x-signature-ed25519');
-	const timestamp = request.headers.get('x-signature-timestamp');
-	const body = await request.text();
-	const isValidRequest =
-		signature &&
-		timestamp &&
-		await verifyKey(body, signature, timestamp, env.DISCORD_PUBLIC_KEY);
-	if (!isValidRequest) {
-		return { isValid: false, interaction: null };
-	}
-
-	return { interaction: JSON.parse(body), isValid: true };
-}
-
 const server = {
-	verifyDiscordRequest,
 	fetch: router.fetch,
 };
 

@@ -5,12 +5,13 @@ import {
     APIApplicationCommandOptionChoice,
     APIInteractionResponse,
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../interfaces/command";
 import * as extraCommands from "../extra";
+import { ChatCommand } from "../../interfaces/command";
 
-export const SUBMIT_COMMAND = createChatCommand({
+export const SUBMIT_COMMAND: ChatCommand = {
     admin: true,
     data: {
         name: 'submit',
@@ -78,7 +79,8 @@ export const SUBMIT_COMMAND = createChatCommand({
                     }
                 ]
             }
-        ]
+        ],
+        type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env, ctx) {
         const userId = interaction.member!.user.id
@@ -111,7 +113,7 @@ export const SUBMIT_COMMAND = createChatCommand({
                                     }
                                 ]
                             }
-                        } satisfies APIInteractionResponse
+                        } satisfies APIInteractionResponse;
                 }
             case 'image':
                 switch (sub.name) {
@@ -131,4 +133,4 @@ export const SUBMIT_COMMAND = createChatCommand({
             }
         } satisfies APIInteractionResponse;
     }
-})
+}

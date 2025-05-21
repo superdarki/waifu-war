@@ -25,7 +25,7 @@ export const USER_CONFIG_COMMAND: ChatCommand = {
                 description: 'test (does nothing more that reply to the message',
                 type: ApplicationCommandOptionType.Subcommand
             }
-        ] satisfies APIApplicationCommandSubcommandOption[],
+        ],
         type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env) {

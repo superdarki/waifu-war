@@ -5,18 +5,20 @@ import {
     APIApplicationCommandOptionChoice,
     APIInteractionResponse,
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../interfaces/command";
+import { ChatCommand } from "../../interfaces/command";
 
-export const REVIEW_COMMAND = createChatCommand({
+export const REVIEW_COMMAND: ChatCommand = {
     admin: true,
     data: {
         name: 'review',
         description: 'Submit something new to the bot',
         options: [
 
-        ]
+        ],
+        type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env, ctx) {
         const userId = interaction.member!.user.id
@@ -32,4 +34,4 @@ export const REVIEW_COMMAND = createChatCommand({
             }
         } satisfies APIInteractionResponse;
     }
-})
+}
