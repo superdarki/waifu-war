@@ -69,7 +69,7 @@ export const SLAP_COMMAND: ChatCommand = {
             } catch (err) {
                 await sendFollowup(interaction, env, {
                     content: '💔 Something went wrong while sending your slap.'
-                })
+                });
             }
         })());
 

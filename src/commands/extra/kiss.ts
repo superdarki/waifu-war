@@ -1,13 +1,16 @@
 import { 
     APIApplicationCommandInteractionDataUserOption,
+    APIApplicationCommandOption,
     ApplicationCommandOptionType,
+    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
-import { createChatCommand } from "../../interfaces/command";
 import { compile } from "../../utils/replace";
-import { getRandomImageFromFolder, sendFollowup } from "../../utils/image";
+import { ChatCommand } from "../../interfaces/command";
+import { getRandomFromFolder } from "../../utils/r2";
+import { sendFollowup } from "../../utils/discord";
 
-export const KISS_COMMAND = createChatCommand({
+export const KISS_COMMAND: ChatCommand = {
     data: {
         name: 'kiss',
         description: 'Kiss someone! (I smell love in the air ❤️)',
@@ -18,7 +21,8 @@ export const KISS_COMMAND = createChatCommand({
                 type: ApplicationCommandOptionType.User,
                 required: true
             }
-        ]
+        ] satisfies APIApplicationCommandOption[],
+        type: ApplicationCommandType.ChatInput
     },
     async handle(interaction, env, ctx) {
         const userId = interaction.member!.user.id
@@ -33,7 +37,7 @@ export const KISS_COMMAND = createChatCommand({
                     .prepare("SELECT color FROM user WHERE id=?1")
                     .bind(userId)
                     .first())?.color as number | undefined;
-                const image = await getRandomImageFromFolder(env.MEDIA_BUCKET, 'kiss');
+                const image = await getRandomFromFolder(env.MEDIA_BUCKET, 'kiss');
 
                 const payload = {
                     embeds: [
@@ -57,14 +61,10 @@ export const KISS_COMMAND = createChatCommand({
                     ]
                 };
         
-                await sendFollowup(env, interaction, payload, image);
+                await sendFollowup(interaction, env, payload, [image]);
             } catch (err) {    
-                await fetch(`https://discord.com/api/webhooks/${env.DISCORD_APPLICATION_ID}/${interaction.token}`, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify({
-                        content: '💔 Something went wrong while sending your kiss.'
-                    })
+                await sendFollowup(interaction, env, {
+                    content: '💔 Something went wrong while sending your kiss.'
                 });
             }
         })());
@@ -73,4 +73,4 @@ export const KISS_COMMAND = createChatCommand({
             type: InteractionResponseType.DeferredChannelMessageWithSource
         };
     }
-})
+}
