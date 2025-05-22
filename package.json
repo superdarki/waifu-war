@@ -10,7 +10,8 @@
 		"start": "wrangler dev",
 		"ngrok": "ngrok http --url amusing-precious-gator.ngrok-free.app 8787",
 		"register": "tsx src/register.ts",
-		"cf-typegen": "wrangler types"
+		"cf-typegen": "wrangler types",
+		"test": "tsx src/test.ts"
 	},
 	"devDependencies": {
 		"discord-api-types": "^0.37.120",
@@ -22,6 +23,7 @@
 		"wrangler": "^4.11.0"
 	},
 	"dependencies": {
+		"@discordjs/builders": "^1.11.2",
 		"@discordjs/rest": "^2.5.0",
 		"@prisma/adapter-d1": "^6.8.2",
 		"@prisma/client": "^6.8.2",

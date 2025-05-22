@@ -1,30 +1,20 @@
 import { 
     APIApplicationCommandInteractionDataUserOption,
-    APIApplicationCommandOption,
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
 import { compile } from "../../utils/replace";
-import { ChatCommand } from "../../interfaces/command";
 import { getRandomFromFolder } from "../../utils/r2";
 import { sendFollowup } from "../../utils/discord";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
-export const KISS_COMMAND: ChatCommand = {
-    data: {
-        name: 'kiss',
-        description: 'Kiss someone! (I smell love in the air ❤️)',
-        options: [
-            {
-                name: 'target',
-                description: 'Who do you want to kiss?',
-                type: ApplicationCommandOptionType.User,
-                required: true
-            }
-        ],
-        type: ApplicationCommandType.ChatInput
-    },
-    async handle(interaction, env, ctx) {
+export const KISS_COMMAND = new SlashCommandBuilder()
+    .setName('kiss')
+    .setDescription('Kiss someone! (I smell love in the air ❤️)')
+    .addUserOption((opt) => opt
+        .setName('target')
+        .setDescription('Who do you want to kiss?')
+        .setRequired(true))
+    .setHandler(async (interaction, env, ctx) => {
         const userId = interaction.member!.user.id
         const targetUserId = (interaction.data.options!.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption)!.value as string
         
@@ -72,5 +62,4 @@ export const KISS_COMMAND: ChatCommand = {
         return {
             type: InteractionResponseType.DeferredChannelMessageWithSource
         };
-    }
-}
+    });

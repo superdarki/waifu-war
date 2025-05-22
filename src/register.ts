@@ -2,11 +2,14 @@ import {
 	RESTPutAPIApplicationCommandsJSONBody,
 	Routes
 } from 'discord-api-types/v10';
-import * as commands from './commands';
 import dotenv from 'dotenv';
-import process, { env } from 'node:process';
-import { Command } from './interfaces/command';
+import process from 'node:process';
 import { REST } from '@discordjs/rest';
+
+import './override-discord';
+import { SlashCommandBuilder } from '@discordjs/builders';
+
+import * as commands from './commands';
 
 dotenv.config({ path: '.dev.vars' });
 
@@ -22,18 +25,18 @@ const rest = new REST({ version: '10' }).setToken(token);
 
 const allCommands = Object.values(commands)
 .map(cmd => {
-	const command = cmd as Command;
+	const command = cmd as SlashCommandBuilder;
 	return command;
 })
 
 // Separate commands
 const globalCommands = allCommands
 .filter(cmd => !cmd.admin)
-.map(cmd => cmd.data);
+.map(cmd => cmd.toJSON());
 
 const adminCommands = allCommands
 .filter(cmd => cmd.admin)
-.map(cmd => cmd.data);
+.map(cmd => cmd.toJSON());
 
 // Define a function to register commands
 async function registerCommands(
