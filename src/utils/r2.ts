@@ -10,6 +10,6 @@ export async function getRandomFromFolder(bucket: R2Bucket, folder: string): Pro
   
     return {
         name: file.key.split('/').pop()!,
-        data
+        data: data
     };
 }

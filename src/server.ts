@@ -1,5 +1,4 @@
 import { AutoRouter } from 'itty-router';
-import * as commands from './commands';
 import {
 	APIChatInputApplicationCommandInteraction,
 	APIInteractionResponse,
@@ -7,9 +6,12 @@ import {
 	InteractionResponseType,
 	InteractionType
 } from 'discord-api-types/v10';
+
+import { verifyDiscordRequest } from './utils/discord';
+
 import './override-discord';
 import { SlashCommandBuilder } from '@discordjs/builders';
-import { verifyDiscordRequest } from './utils/discord';
+import * as commands from './commands';
 
 class JsonResponse extends Response {
 	constructor(
@@ -40,7 +42,7 @@ router.get('/', (_, env: Env) => {
 router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 	const { isValid, interaction } = await verifyDiscordRequest(request, env);
 	if (!isValid || !interaction) {
-		return new Response('Bad request signature.', { status: 401 });
+		return new JsonResponse({ error: 'Bad request signature.' }, { status: 401 });
 	}
 
 	if (interaction.type === InteractionType.Ping) {
@@ -52,7 +54,7 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 	if (interaction.type === InteractionType.ApplicationCommand) {
 		switch (interaction.data.type) {
 			case ApplicationCommandType.ChatInput:
-				const command = SLASH_COMMANDS.get(interaction.data.name.toLowerCase())
+				const command = SLASH_COMMANDS.get(interaction.data.name.toLowerCase())				
 				if (!command) {
 					return new JsonResponse(
 						{ error: 'Unknown Command' },
@@ -77,23 +79,39 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 	}
 
 	if (interaction.type === InteractionType.MessageComponent) {
-		return new JsonResponse(
-			{ error: 'Components are not yet implemented' },
-			{ status: 400 }
-		);
+		return new JsonResponse({ error: 'Components are not yet implemented' }, { status: 400 });
 	}
 
-	console.error('Unknown Type');
-	return new JsonResponse(
-		{ error: 'Unknown Type' },
-		{ status: 400 }
-	);
+	return new JsonResponse({ error: 'Unknown Type' }, { status: 400 });
 });
 
-router.all('*', () => new Response('Not Found.', { status: 404 }));
+router.all('*', () => new JsonResponse({ error: 'Not Found.' }, { status: 404 }));
 
 const server = {
-	fetch: router.fetch,
+	fetch: async (request: Request, env: Env, ctx: ExecutionContext) => {
+		const response = await router.fetch(request, env, ctx);
+		
+		if (response instanceof JsonResponse) {
+			const cloned = response.clone();
+			const text = await cloned.text();
+			
+			try {
+				const body = JSON.parse(text);
+				if ('error' in body) {
+					console.error(`${request.method} ${new URL(request.url).pathname}:`, body.error);
+				} else {
+					console.log(`${request.method} ${new URL(request.url).pathname}`);
+					console.debug(`Response body:`, body)
+				}
+			} catch (err) {
+				console.log(err)
+			}
+		} else {
+			console.log(`${request.method} ${new URL(request.url).pathname}`);
+		}
+
+		return response;
+	}
 };
 
 export default server;

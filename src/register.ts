@@ -4,7 +4,6 @@ import {
 } from 'discord-api-types/v10';
 import dotenv from 'dotenv';
 import process from 'node:process';
-import { REST } from '@discordjs/rest';
 
 import './override-discord';
 import { SlashCommandBuilder } from '@discordjs/builders';
@@ -20,8 +19,6 @@ const adminGuildId = process.env.ADMIN_GUILD;
 if (!token) throw new Error('The DISCORD_TOKEN environment variable is required.');
 if (!applicationId) throw new Error('The DISCORD_APPLICATION_ID environment variable is required.');
 if (!adminGuildId) throw new Error('The ADMIN_GUILD environment variable is required.');
-
-const rest = new REST({ version: '10' }).setToken(token);
 
 const allCommands = Object.values(commands)
 .map(cmd => {
@@ -45,17 +42,37 @@ async function registerCommands(
 	app_id: string,
 	guild_id?: string
 ): Promise<void> {
-	const url = guild_id
+	const url = `https://discord.com/api/v10${
+		guild_id
 		? Routes.applicationGuildCommands(app_id, guild_id)
-		: Routes.applicationCommands(app_id);
-	try {
-		const data = await rest.put(url, {
-			body: commands,
-		});
-		console.info(`✅ Registered ${label} commands`);
-		console.debug(JSON.stringify(data, null, 2));
-	} catch (err) {
-		console.error(`❌ Error registering ${label} commands:`, err);
+		: Routes.applicationCommands(app_id)
+	}`
+
+	const response = await fetch(url, {
+		headers: {
+			'Content-Type': 'application/json',
+			Authorization: `Bot ${token}`,
+		},
+		method: 'PUT',
+		body: JSON.stringify(commands),
+	});
+
+	if (response.ok) {
+		console.log(`✅ Registered ${label} commands`);
+		const data = await response.json();
+		console.log(JSON.stringify(data, null, 2));
+	} else {
+		console.error(`❌ Error registering ${label} commands`);
+		let errorText = `${response.url}: ${response.status} ${response.statusText}`;
+		try {
+			const error = await response.text();
+			if (error) {
+				errorText += `\n\n${error}`;
+			}
+		} catch (err) {
+			console.error('Error reading response body:', err);
+		}
+		console.error(errorText);
 	}
 };
 

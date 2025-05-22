@@ -4,11 +4,8 @@ import {
     InteractionType,
     Routes
 } from "discord-api-types/v10";
-import { REST } from "@discordjs/rest";
 import { verifyKey } from "discord-interactions";
 import { RequestLike } from "itty-router/types";
-
-export const rest = new REST({ version: '10' });
 
 export async function verifyDiscordRequest<T extends InteractionType, U>(
 	request: RequestLike,
@@ -38,20 +35,21 @@ export async function verifyDiscordRequest<T extends InteractionType, U>(
 
 
 export async function sendFollowup(interaction: APIApplicationCommandInteraction, env: Env, payload: any, files?: { name: string; data: ArrayBuffer }[]) {
-    if (files) {
+	if (files) {
         const form = new FormData();
         form.append('payload_json', JSON.stringify(payload));
-
+		
         for (let i = 0; i < files.length; i++) {
             form.append(`files[${i}]`, new Blob([files[i].data]), files[i].name);
         }
         
-        await rest.post(Routes.webhook(env.DISCORD_APPLICATION_ID, interaction.token), {
+        await fetch(`https://discord.com/api/v10${Routes.webhook(env.DISCORD_APPLICATION_ID, interaction.token)}`, {
+			method: 'POST',
             body: form
         });
     } else {
-        await rest.post(Routes.webhook(env.DISCORD_APPLICATION_ID, interaction.token), {
-            headers: { 'Content-Type': 'application/json' },
+		await fetch(`https://discord.com/api/v10${Routes.webhook(env.DISCORD_APPLICATION_ID, interaction.token)}`, {
+			method: 'POST',
             body: JSON.stringify(payload)
         });
     }

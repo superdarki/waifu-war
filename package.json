@@ -24,7 +24,6 @@
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.11.2",
-		"@discordjs/rest": "^2.5.0",
 		"@prisma/adapter-d1": "^6.8.2",
 		"@prisma/client": "^6.8.2",
 		"discord-interactions": "^4.1.1",
