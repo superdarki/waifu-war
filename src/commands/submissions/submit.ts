@@ -1,136 +1,90 @@
-import { 
-    APIApplicationCommandInteractionDataOption,
-    APIApplicationCommandInteractionDataSubcommandGroupOption,
-    APIApplicationCommandInteractionDataSubcommandOption,
+import {
     APIApplicationCommandOptionChoice,
-    APIInteractionResponse,
-    ApplicationCommandOptionType,
-    ApplicationCommandType,
     InteractionResponseType
 } from "discord-api-types/v10";
 import * as extraCommands from "../extra";
-import { ChatCommand } from "../../interfaces/command";
+import { SlashCommandBuilder } from "@discordjs/builders";
 
-export const SUBMIT_COMMAND: ChatCommand = {
-    admin: true,
-    data: {
-        name: 'submit',
-        description: 'Submit something new to the bot',
-        options: [
-            {
-                name: 'text',
-                description: 'Submit new text for something',
-                type: ApplicationCommandOptionType.SubcommandGroup,
-                options: [
-                    {
-                        name: 'extra',
-                        description: 'Submit a new text phrase for an extra command',
-                        type: ApplicationCommandOptionType.Subcommand,
-                        options: [
+export const SUBMIT_COMMAND = new SlashCommandBuilder()
+    .setName('submit')
+    .setDescription('Submit something new to the bot')
+    .setAdmin(true)
+    .addSubcommandGroup((grp) => grp
+        .setName('extra')
+        .setDescription('Submit something new for an extra command')
+        .addSubcommand((sub) => sub
+            .setName('text')
+            .setDescription('Submit a new text phrase for an extra command')
+            .addStringOption((opt) => opt
+                .setName('command')
+                .setDescription('The command you want to submit this for')
+                .addChoices(Object.values(extraCommands).map(cmd => ({
+                    name: cmd.name,
+                    value: cmd.name
+                } as APIApplicationCommandOptionChoice<string>)))
+                .setRequired(true))
+            .addStringOption((opt) => opt
+                .setName('text')
+                .setDescription('The phrase you want to submit')
+                .setMinLength(10)
+                .setMaxLength(100)
+                .setRequired(true))
+            .setHandler(async (interaction, options, env, ctx) => {
+                const userId = interaction.member!.user.id;
+                const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
+
+                const id = crypto.randomUUID()
+                const cmd = options?.find(opt => opt.name === 'command')!.value as string
+                const val = options?.find(opt => opt.name === 'text')!.value as string
+
+                await env.SUBMISSIONS.prepare(`INSERT INTO ${cmd} (id, value) VALUES (?1, ?2)`).bind(id, val).run()
+
+
+                return {
+                    type: InteractionResponseType.ChannelMessageWithSource,
+                    data: {
+                        embeds: [
                             {
-                                name: 'command',
-                                description: 'The command you want to submit this for',
-                                type: ApplicationCommandOptionType.String,
-                                required: true,
-                                choices:  Object.values(extraCommands).map(cmd => ({
-                                    name: cmd.data.name,
-                                    value: cmd.data.name
-                                } as APIApplicationCommandOptionChoice<string>))
-                            },
-                            {
-                                name: 'text',
-                                description: 'The phrase you want to submit',
-                                type: ApplicationCommandOptionType.String,
-                                required: true,
-                                min_length: 10,
-                                max_length: 100
+                                title: 'Submission Recap',
+                                description: `Command: /${cmd}\nSubmited phrase: \`${val}\``,
+                                footer: {
+                                    text: `${id}`
+                                },
+                                color: color
                             }
                         ]
                     }
-                ]
-            },
-            {
-                name: 'image',
-                description: 'Submit new image for something',
-                type: ApplicationCommandOptionType.SubcommandGroup,
-                options: [
-                    {
-                        name: 'extra',
-                        description: 'Submit a new image for an extra command',
-                        type: ApplicationCommandOptionType.Subcommand,
-                        options: [
-                            {
-                                name: 'command',
-                                description: 'The command you want to submit this for',
-                                type: ApplicationCommandOptionType.String,
-                                required: true,
-                                choices:  Object.values(extraCommands).map(cmd => ({
-                                    name: cmd.data.name,
-                                    value: cmd.data.name
-                                } as APIApplicationCommandOptionChoice<string>))
-                            },
-                            {
-                                name: 'attachment',
-                                description: 'The image you want to submit',
-                                type: ApplicationCommandOptionType.Attachment,
-                                required: true
-                            }
-                        ]
-                    }
-                ]
-            }
-        ],
-        type: ApplicationCommandType.ChatInput
-    },
-    async handle(interaction, env, ctx) {
-        const userId = interaction.member!.user.id
-        const subcommand = interaction.data.options![0] as APIApplicationCommandInteractionDataOption
-        const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
-
-        const sub = (subcommand as APIApplicationCommandInteractionDataSubcommandGroupOption)?.options![0] as APIApplicationCommandInteractionDataSubcommandOption
-
-        switch (subcommand.name) {
-            case 'text':
-                switch (sub.name) {
-                    case 'extra':
-                        const id = crypto.randomUUID()
-                        const cmd = sub.options?.find(opt => opt.name === 'command')!.value as string
-                        const val = sub.options?.find(opt => opt.name === 'text')!.value as string
-
-                        await env.SUBMISSIONS.prepare(`INSERT INTO ${cmd} (id, value) VALUES (?1, ?2)`).bind(id, val).run()
-
-                        return {
-                            type: InteractionResponseType.ChannelMessageWithSource,
-                            data: {
-                                embeds: [
-                                    {
-                                        title: 'Submission Recap',
-                                        description: `Command: /${cmd}\nSubmited phrase: \`${val}\``,
-                                        footer: {
-                                            text: `${id}`
-                                        },
-                                        color: color
-                                    }
-                                ]
-                            }
-                        } satisfies APIInteractionResponse;
                 }
-            case 'image':
-                switch (sub.name) {
-                    case 'extra':
-                        const id = crypto.randomUUID()
-                        const cmd = sub.options?.find(opt => opt.name === 'command')!.value as string
-                        const img = sub.options?.find(opt => opt.name === 'attachment')!.value  as string
-                        
-                        console.log(img)
-                }  
-        }
+            }))
+        .addSubcommand((sub) => sub
+            .setName('image')
+            .setDescription('Submit a new image for an extra command')
+            .addStringOption((opt) => opt
+                .setName('command')
+                .setDescription('The command you want to submit this for')
+                .addChoices(Object.values(extraCommands).map(cmd => ({
+                    name: cmd.name,
+                    value: cmd.name
+                } as APIApplicationCommandOptionChoice<string>)))
+                .setRequired(true))
+            .addAttachmentOption((opt) => opt
+                .setName('attachment')
+                .setDescription('The image you want to submit')
+                .setRequired(true))
+            .setHandler(async (interaction, options, env, ctx) => {
+                const userId = interaction.member!.user.id;
+                const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
 
-        return {
-            type: InteractionResponseType.ChannelMessageWithSource,
-            data: {
-                content: `${subcommand.name}`
-            }
-        } satisfies APIInteractionResponse;
-    }
-}
+                const id = crypto.randomUUID()
+                const cmd = options?.find(opt => opt.name === 'command')!.value as string
+                const img = options?.find(opt => opt.name === 'attachment')!.value  as string
+                
+                console.log(img)
+
+                return {
+                    type: InteractionResponseType.ChannelMessageWithSource,
+                    data: {
+                        content: `Coucou`
+                    }
+                };
+            })))

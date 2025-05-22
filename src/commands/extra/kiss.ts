@@ -14,9 +14,9 @@ export const KISS_COMMAND = new SlashCommandBuilder()
         .setName('target')
         .setDescription('Who do you want to kiss?')
         .setRequired(true))
-    .setHandler(async (interaction, env, ctx) => {
+    .setHandler(async (interaction, options, env, ctx) => {
         const userId = interaction.member!.user.id
-        const targetUserId = (interaction.data.options!.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption)!.value as string
+        const targetUserId = (options!.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption)!.value
         
         ctx.waitUntil((async () => {
             try {

@@ -1,31 +1,50 @@
 import "@discordjs/builders";
 import {
-    APIApplicationCommandInteraction,
     APIInteractionResponse,
-    APIChatInputApplicationCommandInteraction
+    APIChatInputApplicationCommandInteraction,
+    APIApplicationCommandInteractionDataBasicOption,
+    APIApplicationCommandInteractionDataSubcommandGroupOption,
+    APIApplicationCommandInteractionDataSubcommandOption
 } from "discord-api-types/v10";
 
 declare module '@discordjs/builders' {
-    type CommandHandler<T extends APIApplicationCommandInteraction = APIApplicationCommandInteraction> = (
-        interaction: T,
+    type SlashCommandGroupHandler = (
+        interaction: APIChatInputApplicationCommandInteraction,
+        options: APIApplicationCommandInteractionDataSubcommandGroupOption[],
         env: Env,
         ctx: ExecutionContext
     ) => Promise<APIInteractionResponse>;
-    type SlashCommandHandler = CommandHandler<APIChatInputApplicationCommandInteraction>;
+
+    type SlashCommandSubHandler = (
+        interaction: APIChatInputApplicationCommandInteraction,
+        options: APIApplicationCommandInteractionDataSubcommandOption[],
+        env: Env,
+        ctx: ExecutionContext
+    ) => Promise<APIInteractionResponse>;
+
+    type SlashCommandHandler = (
+        interaction: APIChatInputApplicationCommandInteraction,
+        options: APIApplicationCommandInteractionDataBasicOption[],
+        env: Env,
+        ctx: ExecutionContext
+    ) => Promise<APIInteractionResponse>;
+
+    type GenericSlashCommandHandler = SlashCommandHandler | SlashCommandSubHandler | SlashCommandGroupHandler
 
     interface SlashCommandSubcommandBuilder {
         handle: SlashCommandHandler;
-        setHandler(handler: SlashCommandHandler): SlashCommandSubcommandBuilder;
+        setHandler(handler: SlashCommandHandler): this;
     }
 
     interface SlashCommandSubcommandGroupBuilder {
         subcommands: Map<string, SlashCommandSubcommandBuilder>;
-        handle: SlashCommandHandler;
+        handle: SlashCommandSubHandler;
     }
 
     interface SharedSlashCommand {
         readonly admin?: boolean;
         setAdmin(isAdmin: boolean): this;
+        handle: GenericSlashCommandHandler;
     }
 
     interface SharedSlashCommandOptions<TypeAfterAddingOptions extends SharedSlashCommandOptions<TypeAfterAddingOptions>> {
@@ -35,6 +54,6 @@ declare module '@discordjs/builders' {
 
     interface SharedSlashCommandSubcommands<TypeAfterAddingSubcommands extends SharedSlashCommandSubcommands<TypeAfterAddingSubcommands>> {
         subcommands: Map<string, SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder>;
-        handle: SlashCommandHandler;
+        handle: SlashCommandGroupHandler | SlashCommandSubHandler;
     }
 }

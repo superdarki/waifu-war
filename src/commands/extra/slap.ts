@@ -14,12 +14,10 @@ export const SLAP_COMMAND = new SlashCommandBuilder()
         .setName('target')
         .setDescription('Who do you want to slap?')
         .setRequired(false))
-    .setHandler(async (interaction, env, ctx) => {
+    .setHandler(async (interaction, options, env, ctx) => {
         const userId = interaction.member!.user.id;
-        const targetUserId = (
-            interaction.data.options?.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption | undefined
-        )?.value as string | undefined;
-        const target = targetUserId ?? userId;
+        const targetOpt = options!.find(opt => opt.name === 'target') as APIApplicationCommandInteractionDataUserOption | undefined
+        const targetId = targetOpt?.value ?? userId;
 
         ctx.waitUntil((async () => {
             try {
@@ -39,7 +37,7 @@ export const SLAP_COMMAND = new SlashCommandBuilder()
                         {
                             title: 'Slap!',
                             description: compile(template, {
-                                1: `<@${target}>`
+                                1: `<@${targetId}>`
                             }),
                             image: {
                                 url: `attachment://${image.name}`

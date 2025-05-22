@@ -1,23 +1,21 @@
 import {
     SlashCommandBuilder,
-    SlashCommandHandler,
     SlashCommandSubcommandBuilder,
-    SlashCommandSubcommandGroupBuilder
+    SlashCommandSubcommandGroupBuilder,
 } from '@discordjs/builders';
 import {
+    APIApplicationCommandInteractionDataOption,
     APIApplicationCommandInteractionDataSubcommandGroupOption,
+    APIApplicationCommandInteractionDataSubcommandOption,
     APIChatInputApplicationCommandInteraction,
-    APIChatInputApplicationCommandInteractionData,
     ApplicationCommandOptionType
 } from 'discord-api-types/v10';
 
 // HELPER FUNCTION
 function parseSubCommand(
-    data:
-        | APIChatInputApplicationCommandInteractionData 
-        | APIApplicationCommandInteractionDataSubcommandGroupOption
+    options: APIApplicationCommandInteractionDataOption[]
 ): string {
-    const [sub] = data.options ?? [];
+    const [sub] = options;
     if (!sub) throw new Error("Missing options in interaction data");
 
     if (
@@ -32,7 +30,7 @@ function parseSubCommand(
 
 // ADD ADMIN FLAG
 if (!SlashCommandBuilder.prototype.setAdmin) {
-    (SlashCommandBuilder as any).prototype.setAdmin = function (isAdmin: boolean = true) {
+    (SlashCommandBuilder as any).prototype.setAdmin = function (isAdmin: boolean) {
         this.admin = isAdmin;
         return this;
     };
@@ -47,18 +45,28 @@ if (!SlashCommandSubcommandBuilder.prototype.setHandler) {
 }
 
 if (!SlashCommandBuilder.prototype.setHandler) {
-    SlashCommandBuilder.prototype.setHandler = function (handler: SlashCommandHandler) {
+    SlashCommandBuilder.prototype.setHandler = function (handler) {
         this.handle = handler;
         return this;
     };
 }
 
 // ADD SUBCOMMAND
-const originalAddSubcommandGroup = SlashCommandSubcommandGroupBuilder.prototype.addSubcommand;
+const originalGroupAddSubcommand = SlashCommandSubcommandGroupBuilder.prototype.addSubcommand;
 SlashCommandSubcommandGroupBuilder.prototype.addSubcommand = function (input) {
     if (!this.subcommands) this.subcommands = new Map();
 
     const built = typeof input === "function" ? input(new SlashCommandSubcommandBuilder()) : input;
+    this.subcommands.set(built.name, built);
+
+    return originalGroupAddSubcommand.call(this, built);
+};
+
+const originalAddSubcommandGroup = SlashCommandBuilder.prototype.addSubcommandGroup;
+SlashCommandBuilder.prototype.addSubcommandGroup = function (input) {
+    if (!this.subcommands) this.subcommands = new Map();
+
+    const built = typeof input === "function" ? input(new SlashCommandSubcommandGroupBuilder()) : input;
     this.subcommands.set(built.name, built);
 
     return originalAddSubcommandGroup.call(this, built);
@@ -77,30 +85,38 @@ SlashCommandBuilder.prototype.addSubcommand = function (input) {
 // HANDLE SUBCOMMANDS
 SlashCommandSubcommandGroupBuilder.prototype.handle = async function(
     interaction: APIChatInputApplicationCommandInteraction,
+    options: APIApplicationCommandInteractionDataSubcommandOption[],
     env: Env,
     ctx: ExecutionContext
 ) {
-    const subcommandName = parseSubCommand(interaction.data);
+    const subcommandName = parseSubCommand(options);
     const subcommand = this.subcommands?.get(subcommandName);
 
     if (!subcommand || typeof subcommand.handle !== 'function') {
         throw new Error(`Subcommand handler for '${subcommandName}' not found`);
     }
 
-    return subcommand.handle(interaction, env, ctx);
+    const sub_options = options![0]
+    return subcommand.handle(interaction, sub_options.options || [], env, ctx);
 }
 
-SlashCommandBuilder.prototype.handle = async function(
+;(SlashCommandBuilder as any).prototype.handle = async function(
     interaction: APIChatInputApplicationCommandInteraction,
+    options: APIApplicationCommandInteractionDataSubcommandGroupOption[] | APIApplicationCommandInteractionDataSubcommandOption[],
     env: Env,
     ctx: ExecutionContext
 ) {
-    const subcommandName = parseSubCommand(interaction.data);
+    const sub_option = options[0];
+
+    const subcommandName = parseSubCommand(options);
     const subcommand = this.subcommands?.get(subcommandName);
 
     if (!subcommand || typeof subcommand.handle !== 'function') {
         throw new Error(`Subcommand handler for '${subcommandName}' not found`);
     }
 
-    return subcommand.handle(interaction, env, ctx);
+    const typedSubOption = sub_option as
+        | APIApplicationCommandInteractionDataSubcommandOption
+        | APIApplicationCommandInteractionDataSubcommandGroupOption;
+    return subcommand.handle(interaction, typedSubOption.options || [], env, ctx);
 };

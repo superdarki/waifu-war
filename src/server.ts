@@ -54,7 +54,8 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 	if (interaction.type === InteractionType.ApplicationCommand) {
 		switch (interaction.data.type) {
 			case ApplicationCommandType.ChatInput:
-				const command = SLASH_COMMANDS.get(interaction.data.name.toLowerCase())				
+				const command = SLASH_COMMANDS.get(interaction.data.name.toLowerCase());
+				const typed_interaction = interaction as APIChatInputApplicationCommandInteraction;	
 				if (!command) {
 					return new JsonResponse(
 						{ error: 'Unknown Command' },
@@ -62,7 +63,7 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 					);
 				}
 				return new JsonResponse(
-					await command.handle(interaction as APIChatInputApplicationCommandInteraction, env, ctx)
+					await command.handle(typed_interaction, typed_interaction.data.options || [], env, ctx)
 				);
 			// case ApplicationCommandType.User:
 			// 	response = await (command as UserCommand).handle(interaction as APIUserApplicationCommandInteraction, env, ctx);
