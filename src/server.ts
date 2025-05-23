@@ -101,8 +101,8 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 
 router.all('*', () => new JsonResponse({ error: 'Not Found.' }, { status: 404 }));
 
-export default {
-	async fecth (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+const server = {
+	fetch: async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
 		env.CONFIG 		= new ConfigClient({ adapter: new PrismaD1(env.CONFIG_DB) });
 		env.CONTENT 	= new ContentClient({ adapter: new PrismaD1(env.CONTENT_DB) });
 		env.SUBMISSIONS = new SubmissionsClient({ adapter: new PrismaD1(env.SUBMISSIONS_DB) });
@@ -131,3 +131,5 @@ export default {
 		return response;
 	},
 };
+
+export default server;
