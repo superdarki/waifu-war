@@ -24,7 +24,7 @@ done
 MIGRATION_NAME=$(date +"%Y%m%d_%H%M%S")
 
 # 3. Create a new D1 migration file
-wrangler d1 migrations create "$PREFIX$DB_NAME" "$MIGRATION_NAME"
+wrangler d1 migrations create "$PREFIX$DB_NAME" "$MIGRATION_NAME" >> /dev/null
 
 # 4. Find the generated file
 SQL_FILE=$(find $MIGRATIONS_DIR -type f -name "*_${MIGRATION_NAME}.sql" | sort | tail -n 1)

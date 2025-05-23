@@ -6,7 +6,7 @@ import { compile } from "../../utils/replace";
 import { getRandomFromFolder } from "../../utils/r2";
 import { sendFollowup } from "../../utils/discord";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Kiss } from "../../../schema/generated/content";
+import { Kiss } from "../../../generated/content";
 
 export const KISS_COMMAND = new SlashCommandBuilder()
     .setName('kiss')

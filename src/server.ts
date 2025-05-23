@@ -13,9 +13,9 @@ import './override-discord';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import * as commands from './commands';
 
-import { PrismaClient as ConfigClient } from '../schema/generated/config';
-import { PrismaClient as ContentClient } from '../schema/generated/content';
-import { PrismaClient as SubmissionsClient } from '../schema/generated/submissions';
+import { PrismaClient as ConfigClient } from '../generated/config';
+import { PrismaClient as ContentClient } from '../generated/content';
+import { PrismaClient as SubmissionsClient } from '../generated/submissions';
 import { PrismaD1 } from '@prisma/adapter-d1';
 
 declare global {

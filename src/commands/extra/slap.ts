@@ -6,7 +6,7 @@ import { compile } from "../../utils/replace";
 import { getRandomFromFolder } from "../../utils/r2";
 import { sendFollowup } from "../../utils/discord";
 import { SlashCommandBuilder } from "@discordjs/builders";
-import { Slap } from "../../../schema/generated/content";
+import { Slap } from "../../../generated/content";
 
 export const SLAP_COMMAND = new SlashCommandBuilder()
     .setName('slap')

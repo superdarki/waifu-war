@@ -1,7 +1,7 @@
 generator config_client {
     provider        = "prisma-client-js"
     previewFeatures = ["driverAdapters"]
-    output = "../generated/config"
+    output = "../../generated/config"
 }
 
 datasource config_db {
