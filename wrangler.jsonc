@@ -11,19 +11,22 @@
 	},
 	"d1_databases": [
 		{
-			"binding": "CONTENT",
+			"binding": "CONTENT_DB",
 			"database_name": "waifu-war-content",
-			"database_id": "3bba24ff-1022-4c6b-9291-34e13751de79"
+			"database_id": "3bba24ff-1022-4c6b-9291-34e13751de79",
+			"migrations_dir": "schema/content/migrations"
 		},
 		{
-			"binding": "CONFIG",
+			"binding": "CONFIG_DB",
 			"database_name": "waifu-war-config",
-			"database_id": "fd4b31e0-b70b-4731-bb14-0d6fc098ec83"
+			"database_id": "fd4b31e0-b70b-4731-bb14-0d6fc098ec83",
+			"migrations_dir": "schema/config/migrations"
 		},
 		{
-			"binding": "SUBMISSIONS",
+			"binding": "SUBMISSIONS_DB",
 			"database_name": "waifu-war-submissions",
-			"database_id": "dd11aea7-f08d-4935-bd67-6cb7adff70ef"
+			"database_id": "dd11aea7-f08d-4935-bd67-6cb7adff70ef",
+			"migrations_dir": "schema/submissions/migrations"
 		}
 	],
 	"r2_buckets": [

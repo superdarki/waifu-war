@@ -1,5 +1,6 @@
 import {
     SlashCommandBuilder,
+    SlashCommandHandler,
     SlashCommandSubcommandBuilder,
     SlashCommandSubcommandGroupBuilder,
 } from '@discordjs/builders';
@@ -37,19 +38,16 @@ if (!SlashCommandBuilder.prototype.setAdmin) {
 }
 
 // SET HANDLER
-if (!SlashCommandSubcommandBuilder.prototype.setHandler) {
-    SlashCommandSubcommandBuilder.prototype.setHandler = function (handler) {
-        this.handle = handler;
-        return this;
-    };
-}
+SlashCommandSubcommandBuilder.prototype.setHandler = function (handler: SlashCommandHandler) {
+    this.handle = handler;
+    return this;
+};
 
-if (!SlashCommandBuilder.prototype.setHandler) {
-    SlashCommandBuilder.prototype.setHandler = function (handler) {
-        this.handle = handler;
-        return this;
-    };
-}
+(SlashCommandBuilder as any).prototype.setHandler = function (handler: SlashCommandHandler) {
+    this.handle = handler;
+    return this;
+};
+
 
 // ADD SUBCOMMAND
 const originalGroupAddSubcommand = SlashCommandSubcommandGroupBuilder.prototype.addSubcommand;

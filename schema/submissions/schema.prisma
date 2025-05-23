@@ -1,0 +1,20 @@
+generator submissions_client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+    output = "../generated/submissions"
+}
+
+datasource submissions_db {
+    provider = "sqlite"
+    url      = "file:./submissions.db"
+}
+
+model Kiss {
+    id      String  @id
+    value   String  @unique
+}
+
+model Slap {
+    id      String  @id
+    value   String  @unique
+}

@@ -8,28 +8,22 @@ import {
 } from "discord-api-types/v10";
 
 declare module '@discordjs/builders' {
-    type SlashCommandGroupHandler = (
+    type CommandOption =
+        | APIApplicationCommandInteractionDataBasicOption
+        | APIApplicationCommandInteractionDataSubcommandOption
+        | APIApplicationCommandInteractionDataSubcommandGroupOption;
+
+    type BaseCommandHandler<T extends CommandOption> = (
         interaction: APIChatInputApplicationCommandInteraction,
-        options: APIApplicationCommandInteractionDataSubcommandGroupOption[],
+        options: T[],
         env: Env,
         ctx: ExecutionContext
     ) => Promise<APIInteractionResponse>;
 
-    type SlashCommandSubHandler = (
-        interaction: APIChatInputApplicationCommandInteraction,
-        options: APIApplicationCommandInteractionDataSubcommandOption[],
-        env: Env,
-        ctx: ExecutionContext
-    ) => Promise<APIInteractionResponse>;
-
-    type SlashCommandHandler = (
-        interaction: APIChatInputApplicationCommandInteraction,
-        options: APIApplicationCommandInteractionDataBasicOption[],
-        env: Env,
-        ctx: ExecutionContext
-    ) => Promise<APIInteractionResponse>;
-
-    type GenericSlashCommandHandler = SlashCommandHandler | SlashCommandSubHandler | SlashCommandGroupHandler
+    type SlashCommandHandler       = BaseCommandHandler<APIApplicationCommandInteractionDataBasicOption>;
+    type SlashCommandSubHandler    = BaseCommandHandler<APIApplicationCommandInteractionDataSubcommandOption>;
+    type SlashCommandGroupHandler  = BaseCommandHandler<APIApplicationCommandInteractionDataSubcommandGroupOption | APIApplicationCommandInteractionDataSubcommandOption>;
+    type GenericSlashCommandHandler = BaseCommandHandler<CommandOption>;
 
     interface SlashCommandSubcommandBuilder {
         handle: SlashCommandHandler;
@@ -48,12 +42,10 @@ declare module '@discordjs/builders' {
     }
 
     interface SharedSlashCommandOptions<TypeAfterAddingOptions extends SharedSlashCommandOptions<TypeAfterAddingOptions>> {
-        handle: SlashCommandHandler;
         setHandler(handler: SlashCommandHandler): TypeAfterAddingOptions;
     }
 
     interface SharedSlashCommandSubcommands<TypeAfterAddingSubcommands extends SharedSlashCommandSubcommands<TypeAfterAddingSubcommands>> {
         subcommands: Map<string, SlashCommandSubcommandBuilder | SlashCommandSubcommandGroupBuilder>;
-        handle: SlashCommandGroupHandler | SlashCommandSubHandler;
     }
 }

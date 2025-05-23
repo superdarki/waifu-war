@@ -175,3 +175,7 @@ dist
 
 .dev.vars
 .wrangler/
+
+# prisma generated
+generated/
+*.db

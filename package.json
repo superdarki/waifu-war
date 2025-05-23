@@ -11,7 +11,7 @@
 		"ngrok": "ngrok http --url amusing-precious-gator.ngrok-free.app 8787",
 		"register": "tsx src/register.ts",
 		"cf-typegen": "wrangler types",
-		"test": "tsx src/test.ts"
+		"generate": "for schema in schema/*/schema.prisma; do npx prisma generate --schema=$schema; done"
 	},
 	"devDependencies": {
 		"discord-api-types": "^0.37.120",

@@ -1,0 +1,20 @@
+generator content_client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+    output = "../generated/content"
+}
+
+datasource content_db {
+    provider = "sqlite"
+    url      = "file:./content.db"
+}
+
+model Kiss {
+    id      Int     @id @default(autoincrement())
+    value   String  @unique
+}
+
+model Slap {
+    id      Int     @id @default(autoincrement())
+    value   String  @unique
+}

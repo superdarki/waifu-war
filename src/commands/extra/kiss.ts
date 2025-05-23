@@ -6,6 +6,7 @@ import { compile } from "../../utils/replace";
 import { getRandomFromFolder } from "../../utils/r2";
 import { sendFollowup } from "../../utils/discord";
 import { SlashCommandBuilder } from "@discordjs/builders";
+import { Kiss } from "../../../schema/generated/content";
 
 export const KISS_COMMAND = new SlashCommandBuilder()
     .setName('kiss')
@@ -20,13 +21,11 @@ export const KISS_COMMAND = new SlashCommandBuilder()
         
         ctx.waitUntil((async () => {
             try {
-                const template = (
-                    await env.CONTENT.prepare("SELECT value FROM kiss ORDER BY RANDOM() LIMIT 1").first()
-                )?.value as string ?? "An error occurred, no template phrase available";
-                const color = (await env.CONFIG
-                    .prepare("SELECT color FROM user WHERE id=?1")
-                    .bind(userId)
-                    .first())?.color as number | undefined;
+                const template = (await env.CONTENT.$queryRaw<Kiss[]>`SELECT * FROM kiss ORDER BY RANDOM() LIMIT 1`)[0]?.value
+                    ?? "An error occurred, no template phrase available";
+                
+                const color = (await env.CONFIG.user.findUnique({where: {id: userId}, select: {color: true}}))?.color;
+
                 const image = await getRandomFromFolder(env.MEDIA_BUCKET, 'kiss');
 
                 const payload = {

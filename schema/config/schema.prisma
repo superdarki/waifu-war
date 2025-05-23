@@ -1,0 +1,15 @@
+generator config_client {
+    provider        = "prisma-client-js"
+    previewFeatures = ["driverAdapters"]
+    output = "../generated/config"
+}
+
+datasource config_db {
+    provider = "sqlite"
+    url      = "file:./config.db"
+}
+
+model User {
+    id      String      @id
+    color   Int
+}

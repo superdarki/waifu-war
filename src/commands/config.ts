@@ -24,11 +24,14 @@ export const USER_CONFIG_COMMAND = new SlashCommandBuilder()
                     }
                 }
             } else {
-                await env.CONFIG.prepare(
-                    `INSERT INTO user (id, color) 
-                    VALUES (?1, ?2)
-                    ON CONFLICT(id) DO UPDATE SET color = excluded.color`
-                ).bind(userId, parseInt(hex.replace('#', ''), 16)).run()
+                await env.CONFIG.user.upsert({
+                    where: { id: userId },
+                    update: { color: parseInt(hex.replace('#', ''), 16) },
+                    create: {
+                        id: userId,
+                        color: parseInt(hex.replace('#', ''), 16)
+                    }
+                });
                 return {
                     type: InteractionResponseType.ChannelMessageWithSource,
                     data: {

@@ -31,15 +31,14 @@ export const SUBMIT_COMMAND = new SlashCommandBuilder()
                 .setRequired(true))
             .setHandler(async (interaction, options, env, ctx) => {
                 const userId = interaction.member!.user.id;
-                const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
+                const color = (await env.CONFIG.user.findUnique({where: {id: userId}, select: {color: true}}))?.color;
 
                 const id = crypto.randomUUID()
                 const cmd = options?.find(opt => opt.name === 'command')!.value as string
                 const val = options?.find(opt => opt.name === 'text')!.value as string
 
-                await env.SUBMISSIONS.prepare(`INSERT INTO ${cmd} (id, value) VALUES (?1, ?2)`).bind(id, val).run()
-
-
+                await env.SUBMISSIONS.$executeRaw`INSERT INTO ${cmd} (id, value) VALUES (${id}, ${val})`;
+                
                 return {
                     type: InteractionResponseType.ChannelMessageWithSource,
                     data: {
@@ -73,11 +72,11 @@ export const SUBMIT_COMMAND = new SlashCommandBuilder()
                 .setRequired(true))
             .setHandler(async (interaction, options, env, ctx) => {
                 const userId = interaction.member!.user.id;
-                const color = (await env.CONFIG.prepare("SELECT color FROM user WHERE id=?1").bind(userId).first())?.color as number | undefined;
+                const color = (await env.CONFIG.user.findUnique({where: {id: userId}, select: {color: true}}))?.color;
 
                 const id = crypto.randomUUID()
                 const cmd = options?.find(opt => opt.name === 'command')!.value as string
-                const img = options?.find(opt => opt.name === 'attachment')!.value  as string
+                const img = options?.find(opt => opt.name === 'attachment')
                 
                 console.log(img)
 

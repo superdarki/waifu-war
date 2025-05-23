@@ -13,6 +13,19 @@ import './override-discord';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import * as commands from './commands';
 
+import { PrismaClient as ConfigClient } from '../schema/generated/config';
+import { PrismaClient as ContentClient } from '../schema/generated/content';
+import { PrismaClient as SubmissionsClient } from '../schema/generated/submissions';
+import { PrismaD1 } from '@prisma/adapter-d1';
+
+declare global {
+	interface Env {
+		CONFIG: ConfigClient;
+		CONTENT: ContentClient;
+		SUBMISSIONS: SubmissionsClient;
+	}
+}
+
 class JsonResponse extends Response {
 	constructor(
 		body: APIInteractionResponse | { error: string },
@@ -88,8 +101,12 @@ router.post('/', async (request, env: Env, ctx: ExecutionContext) => {
 
 router.all('*', () => new JsonResponse({ error: 'Not Found.' }, { status: 404 }));
 
-const server = {
-	fetch: async (request: Request, env: Env, ctx: ExecutionContext) => {
+export default {
+	async fecth (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> {
+		env.CONFIG 		= new ConfigClient({ adapter: new PrismaD1(env.CONFIG_DB) });
+		env.CONTENT 	= new ContentClient({ adapter: new PrismaD1(env.CONTENT_DB) });
+		env.SUBMISSIONS = new SubmissionsClient({ adapter: new PrismaD1(env.SUBMISSIONS_DB) });
+
 		const response = await router.fetch(request, env, ctx);
 		
 		if (response instanceof JsonResponse) {
@@ -112,7 +129,5 @@ const server = {
 		}
 
 		return response;
-	}
+	},
 };
-
-export default server;
