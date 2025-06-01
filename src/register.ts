@@ -60,7 +60,7 @@ async function registerCommands(
 	if (response.ok) {
 		console.log(`✅ Registered ${label} commands`);
 		const data = await response.json();
-		console.log(JSON.stringify(data, null, 2));
+		console.debug(JSON.stringify(data, null, 2));
 	} else {
 		console.error(`❌ Error registering ${label} commands`);
 		let errorText = `${response.url}: ${response.status} ${response.statusText}`;
