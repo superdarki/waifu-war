@@ -119,7 +119,7 @@ const server = {
 					console.error(`${request.method} ${new URL(request.url).pathname}:`, body.error);
 				} else {
 					console.log(`${request.method} ${new URL(request.url).pathname}`);
-					console.debug(`Response body:`, body)
+					console.debug(`Response body:\n`, body)
 				}
 			} catch (err) {
 				console.log(err)
