@@ -113,8 +113,5 @@ SlashCommandSubcommandGroupBuilder.prototype.handle = async function(
         throw new Error(`Subcommand handler for '${subcommandName}' not found`);
     }
 
-    const typedSubOption = sub_option as
-        | APIApplicationCommandInteractionDataSubcommandOption
-        | APIApplicationCommandInteractionDataSubcommandGroupOption;
-    return subcommand.handle(interaction, typedSubOption.options || [], env, ctx);
+    return subcommand.handle(interaction, sub_option.options || [], env, ctx);
 };
