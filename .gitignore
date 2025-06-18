@@ -158,11 +158,6 @@ dist
 
 .vscode-test
 
-# VSCode config files
-
-.vscode
-.devcontainer
-
 # yarn v2
 
 .yarn/cache
