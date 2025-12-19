@@ -13,16 +13,11 @@ import './override-discord';
 import { SlashCommandBuilder } from '@discordjs/builders';
 import * as commands from './commands';
 
-import { PrismaClient as ConfigClient } from '../generated/config';
-import { PrismaClient as ContentClient } from '../generated/content';
-import { PrismaClient as SubmissionsClient } from '../generated/submissions';
-import { PrismaD1 } from '@prisma/adapter-d1';
+import { drizzle, DrizzleD1Database } from 'drizzle-orm/d1';
 
 declare global {
 	interface Env {
-		CONFIG: ConfigClient;
-		CONTENT: ContentClient;
-		SUBMISSIONS: SubmissionsClient;
+		DB: DrizzleD1Database;
 	}
 }
 
@@ -103,9 +98,7 @@ router.all('*', () => new JsonResponse({ error: 'Not Found.' }, { status: 404 })
 
 const server = {
 	fetch: async (request: Request, env: Env, ctx: ExecutionContext): Promise<Response> => {
-		env.CONFIG 		= new ConfigClient({ adapter: new PrismaD1(env.CONFIG_DB) });
-		env.CONTENT 	= new ContentClient({ adapter: new PrismaD1(env.CONTENT_DB) });
-		env.SUBMISSIONS = new SubmissionsClient({ adapter: new PrismaD1(env.SUBMISSIONS_DB) });
+		env.DB = drizzle(env.CONFIG_DB)
 
 		const response = await router.fetch(request, env, ctx);
 		

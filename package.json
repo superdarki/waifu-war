@@ -11,22 +11,21 @@
 		"ngrok": "ngrok http --url amusing-precious-gator.ngrok-free.app 8787",
 		"register": "tsx src/register.ts",
 		"cf-typegen": "wrangler types",
-		"generate": "for path in schema/*; do npx prisma generate --schema=$path/schema.prisma && ./gen-migrations.sh ${path##schema/}; done"
+		"db:generate": "drizzle-kit generate"
 	},
 	"devDependencies": {
 		"discord-api-types": "^0.37.120",
-		"dotenv": "^16.5.0",
+		"dotenv": "^16.6.1",
+		"drizzle-kit": "^0.31.5",
 		"ngrok": "^5.0.0-beta.2",
-		"prisma": "^6.8.2",
-		"tsx": "^4.19.3",
+		"tsx": "^4.20.6",
 		"typescript": "^5.5.2",
 		"wrangler": "^4.11.0"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.11.2",
-		"@prisma/adapter-d1": "^6.8.2",
-		"@prisma/client": "^6.8.2",
 		"discord-interactions": "^4.1.1",
+		"drizzle-orm": "^0.44.6",
 		"itty-router": "^5.0.18"
 	}
 }
