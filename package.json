@@ -20,7 +20,7 @@
 		"prisma": "^6.8.2",
 		"tsx": "^4.19.3",
 		"typescript": "^5.5.2",
-		"wrangler": "^4.11.0"
+		"wrangler": "^4.59.1"
 	},
 	"dependencies": {
 		"@discordjs/builders": "^1.11.2",
